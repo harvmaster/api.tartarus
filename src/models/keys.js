@@ -42,4 +42,4 @@ schema.methods.toJSON = function () {
 }
 
 //Access outside of the file
-var Channel = module.exports = mongoose.model('Channel', schema);
+var Key = module.exports = mongoose.model('Key', schema);

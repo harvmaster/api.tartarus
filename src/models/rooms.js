@@ -58,4 +58,4 @@ schema.methods.toJSON = function () {
 }
 
 //Access outside of the file
-var Room = module.exports = mongoose.model('room', schema);
+var Room = module.exports = mongoose.model('Room', schema);
