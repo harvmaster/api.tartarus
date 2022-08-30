@@ -16,6 +16,9 @@ var schema = mongoose.Schema({
   privateKey: { // Encrypted with user's password (client-side)
     type: String
   },
+  secretHash: {
+    type: String
+  },
   exposed: {
     type: Date,
     default: null
@@ -39,7 +42,10 @@ schema.methods.toAuthJSON = function(user) {
         id: this.id,
         user: this.user,
         privateKey: this.privateKey,
-        publicKey: this.publicKey
+        publicKey: this.publicKey,
+        secretHash: this.secretHash,
+        created: this.create_date,
+        exposed: this.exposed
     }
 };
 

@@ -1,5 +1,6 @@
 const { expressjwt: jwt } = require('express-jwt')
 const jwtVerify = require('jsonwebtoken')
+const { get } = require('mongoose')
 const secret = require('../../config').jwt.secret
 const Users = require('../models/users')
 
@@ -10,13 +11,13 @@ const auth = () => {
       algorithms: ['HS256'],
       userProperty: 'payload',
       credentialsRequired: false,
-      getToken: getUserId
+      getToken: getTokenFromHeader
     }),
     required: jwt({
       secret: secret,
       algorithms: ['HS256'],
-      // userProperty: 'payload',
-      getToken: getUserId
+      userProperty: 'payload',
+      getToken: getTokenFromHeader
     })
   }
 }
@@ -25,7 +26,6 @@ const getTokenFromHeader = (req, res) => {
   console.log(req.header.authorization)
   if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Token' ||
       req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
-        req.user = getUserId(req, res)
         return req.headers.authorization.split(' ')[1];
   }
 
@@ -35,12 +35,15 @@ const getTokenFromHeader = (req, res) => {
 const getUserId = (req, res) => {
   if (req.headers && req.headers.authorization) {
     const header = req.headers.authorization
-    
+    console.log(header)
+
     let decoded
     try {
-      decoded = jwtVerify.verify(header.split(' ')[1], secret);
+      decoded = jwtVerify.verify(header, secret);
+      console.log(decoded)
     } catch (err) {
-      return res.status(401).send('unauthorized');
+      console.log('nope')
+      return null
     }
 
     return decoded.id

@@ -5,6 +5,7 @@ var jwt = require('jsonwebtoken')
 var secret = require('../../config').jwt.secret
 
 const KeyPairs = require('./keypairs')
+const Channels = require('./channels')
 
 // Database information required
 var schema = mongoose.Schema({
@@ -67,17 +68,22 @@ schema.methods.generateJWT = function() {
   var exp = new Date(today);
   exp.setDate(today.getDate() + 1);
 
+  console.log(secret)
+
   return jwt.sign({
     id: this._id,
-    exp: parseInt(exp.getTime() / 10000),
-  }, secret);
+    exp: parseInt(exp.getTime() / 1000),
+  }, secret,
+  { algorithm: 'HS256' }
+  );
 };
 
-schema.methods.createKeyPair = async function (privateKey, publicKey) {
+schema.methods.createKeyPair = async function (privateKey, publicKey, secretHash) {
   const keys = new KeyPairs({
     user: this.id,
     privateKey,
-    publicKey
+    publicKey,
+    secretHash
   })
   try {
     const created = await keys.save()
@@ -98,13 +104,38 @@ schema.methods.getPublicKeys = async function (limit) {
   return publicKeys.slice(0, limit)
 }
 
+schema.methods.getRooms = async function (getMessages) {
+  let channels = await Channels.getUsersChannels(this.id, getMessages)
+  let rooms = [...new Set(channels.map(channel => channel.room))]
+  rooms = rooms.map(id => Rooms.findById(id))
+  await Promise.all(rooms)
+
+  // Map channels into rooms
+  rooms = rooms.map(({ id, name }) => {
+    let c = channels.filter(ch => ch.room == id) 
+    return {
+      id,
+      name,
+      channels: c
+    }
+  })
+  // Get channels that are private conversations
+  let privateConversations = channels.filter(channel => channel.room == null)
+
+  return {
+    rooms,
+    private: privateConversations
+  }
+}
+
 schema.methods.toAuthJSON = async function(user) {
-  const keyPairs = await this.getKeyPairs()
+  const keypairs = await this.getKeyPairs()
   return {
     id: this.id,
     username: this.username,
     accountCode: this.accountCode,
-    keyPairs
+    keypairs,
+    jwt: this.generateJWT()
   }
 };
 
@@ -112,8 +143,16 @@ schema.methods.toJSON = async function () {
   const publicKeys = await this.getPublicKeys()
   return {
     username: this.username,
+    accountCode: this.accountCode, // This might be removed. Probs a security issue here
     publicKeys: publicKeys
   }
+}
+
+schema.statics.getFromPubKey = async function (pubkey) {
+  const key = await Keys.findOne({ publicKey: pubkey })
+  const user = await User.findById(key.user)
+
+  return user
 }
 
 schema.statics.isEmailTaken = async function (email) {

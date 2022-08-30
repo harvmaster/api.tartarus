@@ -36,7 +36,7 @@ schema.methods.addChannel = async function ({ name, type, participants }) {
 schema.methods.getChannels = async function (format) {
   try {
     let channels = await Channels.find({ roomId: this.id })
-    channels = channels.map(channel => channel.toJSON())
+    // channels = channels.map(channel => channel.toJSON())
 
     return channels
   } catch (err) {
@@ -44,17 +44,28 @@ schema.methods.getChannels = async function (format) {
   }
 }
 
-schema.methods.toAuthJSON = function(user) {
-    return {
-        id: this.id,
-        name: this.name,
-    }
+schema.methods.toFull = async function() {
+  let channels = await this.getChannels()
+  channels = channels.map(channel => channel.toFull())
+  await Promise.all(channels)
+
+  return {
+    id: this.id,
+    name: this.name,
+    channels
+  }
 };
 
-schema.methods.toJSON = function () {
-    return {
-        name: this.name.first,
-    }
+schema.methods.toJSON = async function () {
+  let channels = await this.getChannels()
+  channels = channels.map(channel => channel.toJSON())
+  await Promise.all(channels)
+
+  return {
+    id: this.id,
+    name: this.name,
+    channels
+  }
 }
 
 //Access outside of the file

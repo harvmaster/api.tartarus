@@ -10,7 +10,7 @@ var schema = mongoose.Schema({
     type: String,
     default: 'text'
   },
-  ownerKey: { // Public key of a user
+  owner: { // Public key of a user
     type: String,
   },
   key: { // Encrypted with the Public Key of who the key is intended for (ownerKey), decrypt with the owner's private key
@@ -28,17 +28,13 @@ var schema = mongoose.Schema({
   }
 });
 
-schema.methods.toAuthJSON = function(user) {
-    return {
-        id: this.id,
-        name: this.name,
-    }
-};
-
 schema.methods.toJSON = function () {
-    return {
-        name: this.name.first,
-    }
+  return {
+    id: this.hash,
+    key: this.key,
+    exposed: this.exposed,
+    created: this.create_date
+  }
 }
 
 //Access outside of the file

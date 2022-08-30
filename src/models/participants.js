@@ -1,8 +1,11 @@
 const mongoose = require('mongoose')
 
 var crypto = require('crypto')
-var jwt = require('jsonwebtoken')
+var jwt = require('jsonwebtoken');
 var secret = require('../../config').jwt.secret
+
+const Users = require('./users')
+const Channels = require('./channels');
 
 // Database information required
 var schema = mongoose.Schema({
@@ -23,17 +26,23 @@ var schema = mongoose.Schema({
   }
 });
 
-schema.methods.toAuthJSON = function(user) {
-    return {
-        id: this.id,
-        name: this.name,
-    }
-};
+schema.methods.getUser = async function () {
+  const user = await Users.findById(this.userId)
+  return user
+}
 
-schema.methods.toJSON = function () {
-    return {
-        name: this.name.first,
-    }
+schema.methods.getChannel = async function () {
+  const channel = await channels.findById(this.channelId)
+  return channel
+}
+
+schema.methods.toJSON = async function () {
+  const user = await this.getUser().toJSON()
+  const channel = await this.getChannel().toJSON()
+  return {
+    user,
+    channel 
+  }
 }
 
 //Access outside of the file

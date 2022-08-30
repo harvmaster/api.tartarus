@@ -5,6 +5,9 @@ var jwt = require('jsonwebtoken')
 var secret = require('../../config').jwt.secret
 
 const Participants = require('./participants')
+const Messages = require('./messages')
+const Keys = require('./keys')
+const Users = require('./users')
 
 // Database information required
 var schema = mongoose.Schema({
@@ -26,12 +29,24 @@ var schema = mongoose.Schema({
   }
 });
 
+schema.statics.getUsersChannels = async function (user, getMessages = false) {
+  // get the owner of the pubkey
+  // const user = await Users.getFromPublicKey(pubkey)
+  let channels = await Participants.find({ userId: user })
+  if (getMessages) channels = channels.map(channel => channel.toFull())
+  else channels = channels.map(channel => channel.toJSON())
+  await Promise.all(channels)
+
+  return channels
+}
+
 schema.methods.addParticipant = async function (pubkey) {
   try {
+    const user = await Users.getFromPubKey(pubkey)
     let participant = new Participants({
       roomId: this.roomId,
       channelId: this.id,
-      user: pubkey
+      userId: user.id
     })
 
     await participant.save()
@@ -56,17 +71,61 @@ schema.methods.addParticipants = async function (pubkeys) {
 
 }
 
-schema.methods.toAuthJSON = function(user) {
-    return {
-        id: this.id,
-        name: this.name,
-    }
-};
+schema.methods.getParticipants = async function () {
+  let participants = await Participants.find({ channelId: this.id })
+  participants = participants.map(p => User.findById(p.userId))
+  await Promise.all(participants)
+  participants = participants.map(p => p.toJSON())
+  await Promise.all(participants)
 
-schema.methods.toJSON = function () {
-    return {
-        name: this.name.first,
-    }
+  return participants
+}
+
+schema.methods.getMessages = async function ({ limit = 100, offset = 0 }, user) {
+  const messages = Messages.find({ channelID: this.id }).sort({ 'create_date': -1 }).skip(offset).limit(limit)
+  
+  let keys = []
+  if (!!user) {
+    const keyHashes = [...new Set(messages.map(message => message.keyHash))]
+    keys = keyHashes.map(hash => Keys.find({ hash, owner: user }))
+    await Promise.all(keysPromise)
+    keys = keys.map(key => key.toJSON())
+  }
+
+  return {
+    total: messages.count(),
+    keys,
+    messages
+  }
+}
+
+schema.methods.toJSON = async function () {
+  const participants = await this.getParticipants()
+
+  return {
+    id: this.id,
+    rooom: this.roomId,
+    type: this.type,
+    name: this.name,
+    created: this.create_date,
+    participants
+  }
+}
+
+schema.methods.toFull = async function (messageOptions, user) {
+  const participant = this.getParticipants()
+  const messages = this.getMessages(messageOptions, user)
+  await Promise.all(participant, messages)
+  messages.messages = messages.messages.map(({ id, sender, content, keyHash, created }) => ({ id, sender, content, keyHash, created }))
+  return {
+    id: this.id,
+    rooom: this.roomId,
+    type: this.type,
+    name: this.name,
+    created: this.create_date,
+    participant,
+    messages
+  }
 }
 
 //Access outside of the file
