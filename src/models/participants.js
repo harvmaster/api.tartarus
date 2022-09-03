@@ -9,7 +9,7 @@ const Channels = require('./channels');
 
 // Database information required
 var schema = mongoose.Schema({
-  userId: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user' 
   },
@@ -27,18 +27,24 @@ var schema = mongoose.Schema({
 });
 
 schema.methods.getUser = async function () {
-  const user = await Users.findById(this.userId)
+  // const user = await Users.findById(this.userId)
+  const participant = await Participant.findById(this.id).populate('user')
+  const user = participant.user
   return user
 }
 
 schema.methods.getChannel = async function () {
-  const channel = await channels.findById(this.channelId)
+  const channel = await Channels.findById(this.channelId)
   return channel
 }
 
 schema.methods.toJSON = async function () {
-  const user = await this.getUser().toJSON()
-  const channel = await this.getChannel().toJSON()
+  // const user = await this.getUser()
+  // console.log(user)
+  // const user = await this.getUser().toJSON()
+  // const channel = await this.getChannel().toJSON()
+  const user = this.user
+  const channel  = this.channelId
   return {
     user,
     channel 

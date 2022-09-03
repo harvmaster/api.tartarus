@@ -6,6 +6,7 @@ var secret = require('../../config').jwt.secret
 
 const KeyPairs = require('./keypairs')
 const Channels = require('./channels')
+const Rooms = require('./rooms')
 
 // Database information required
 var schema = mongoose.Schema({
@@ -66,7 +67,7 @@ schema.methods.setPassword = function(password){
 schema.methods.generateJWT = function() {
   var today = new Date();
   var exp = new Date(today);
-  exp.setDate(today.getDate() + 1);
+  exp.setDate(today.getDate() + 10);
 
   console.log(secret)
 
@@ -106,21 +107,31 @@ schema.methods.getPublicKeys = async function (limit) {
 
 schema.methods.getRooms = async function (getMessages) {
   let channels = await Channels.getUsersChannels(this.id, getMessages)
-  let rooms = [...new Set(channels.map(channel => channel.room))]
+  // console.log(channels)
+  let rooms = [...new Set(channels.map(channel => channel.roomId))]
+  // console.log(rooms)
   rooms = rooms.map(id => Rooms.findById(id))
-  await Promise.all(rooms)
+  rooms = await Promise.all(rooms)
+  // console.log('getting rooms')
+
+  // console.log('rooms')
+  // console.log(rooms)
 
   // Map channels into rooms
-  rooms = rooms.map(({ id, name }) => {
-    let c = channels.filter(ch => ch.room == id) 
+  rooms = rooms.map((room) => {
+    if (!room?.id) return
+    let c = channels.filter(ch => ch.roomId == room.id) 
     return {
-      id,
-      name,
+      id: room.id,
+      name: room.name,
+      created: room.create_date,
       channels: c
     }
   })
   // Get channels that are private conversations
-  let privateConversations = channels.filter(channel => channel.room == null)
+  let privateConversations = channels.filter(channel => channel.roomId == null)
+
+  rooms = rooms.filter(room => !!room)
 
   return {
     rooms,

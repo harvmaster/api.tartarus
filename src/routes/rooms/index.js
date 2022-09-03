@@ -38,8 +38,9 @@ class RoomRoute {
   
   // Create a new room
   async createRoom(req, res) {
-    const userId = req.user
+    const userId = req.auth.id
     const user = await Users.findById(userId)
+    console.log(user)
     const body = req.body.room
 
     // Create room
@@ -53,18 +54,20 @@ class RoomRoute {
       created = await room.save()
       console.log('Created Room', created.name)
       
-      // res.send(created)
     } catch (error) {
       console.error(error)
       return res.status(500).send('A problem occured trying to save the room')
     }
 
-    room.addChannel({
+    const pubKeys = await user.getPublicKeys()
+    console.log(pubKeys)
+
+    await room.addChannel({
       name: 'general',
-      participants: user.publicKey
+      participants: pubKeys[0].publicKey
     })
 
-    return res.send(room)
+    return res.send({ room: await room.toJSON() })
 
   }
 }

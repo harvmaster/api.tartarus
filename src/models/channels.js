@@ -7,6 +7,7 @@ var secret = require('../../config').jwt.secret
 const Participants = require('./participants')
 const Messages = require('./messages')
 const Keys = require('./keys')
+const keypairs = require('./keypairs')
 const Users = require('./users')
 
 // Database information required
@@ -33,20 +34,25 @@ schema.statics.getUsersChannels = async function (user, getMessages = false) {
   // get the owner of the pubkey
   // const user = await Users.getFromPublicKey(pubkey)
   let channels = await Participants.find({ userId: user })
+  channels = await Promise.all(channels.map(channel => Channel.findById(channel.channelId)))
+  console.log(channels)
   if (getMessages) channels = channels.map(channel => channel.toFull())
   else channels = channels.map(channel => channel.toJSON())
-  await Promise.all(channels)
+  channels = await Promise.all(channels)
 
   return channels
 }
 
 schema.methods.addParticipant = async function (pubkey) {
   try {
-    const user = await Users.getFromPubKey(pubkey)
+    // console.log(Users.find({}))
+    console.log(pubkey)
+    const key = await keypairs.findOne({ publicKey: pubkey })
+    console.log('user')
+    console.log(key.user)
     let participant = new Participants({
-      roomId: this.roomId,
       channelId: this.id,
-      userId: user.id
+      user: key.user
     })
 
     await participant.save()
@@ -73,10 +79,15 @@ schema.methods.addParticipants = async function (pubkeys) {
 
 schema.methods.getParticipants = async function () {
   let participants = await Participants.find({ channelId: this.id })
-  participants = participants.map(p => User.findById(p.userId))
-  await Promise.all(participants)
+  // console.log(participants)
+
+  participants = participants.map(p => mongoose.model('User').findById(p.user))
+  participants = await Promise.all(participants)
+  // console.log(participants)
   participants = participants.map(p => p.toJSON())
-  await Promise.all(participants)
+  participants = await Promise.all(participants)
+
+  // console.log(participants)
 
   return participants
 }
@@ -104,7 +115,7 @@ schema.methods.toJSON = async function () {
 
   return {
     id: this.id,
-    rooom: this.roomId,
+    roomId: this.roomId,
     type: this.type,
     name: this.name,
     created: this.create_date,

@@ -5,6 +5,7 @@ var jwt = require('jsonwebtoken')
 var secret = require('../../config').jwt.secret
 
 const Channels = require('./channels')
+const Participants = require('./participants')
 
 // Database information required
 var schema = mongoose.Schema({
@@ -18,9 +19,28 @@ var schema = mongoose.Schema({
     }
 });
 
+schema.methods.getAllParticipants = async function () {
+  const channels = await this.getChannels()
+  // let participants = channels.map(channel => channel.getParticipants())
+  let participants = channels.map(channel => Participants.find({channelId: channel.id}))
+  participants = await Promise.all(particpants)
+
+  participants = [...new Set(participants.map(p => p.user))]
+  participants = participants.map(p => mongoose.model('User').findById(p))
+  participants = await Promise.all(participants)
+
+  participants = participants.map(p => p.toJSON())
+  participants = await Promise.all(participants)
+
+  console.log(participants)
+
+  return participants
+}
+
 schema.methods.addChannel = async function ({ name, type, participants }) {
   try {
     let channel = new Channels({
+      roomId: this.id,
       name,
       type
     })
@@ -52,6 +72,7 @@ schema.methods.toFull = async function() {
   return {
     id: this.id,
     name: this.name,
+    created: this.create_date,
     channels
   }
 };
@@ -59,11 +80,12 @@ schema.methods.toFull = async function() {
 schema.methods.toJSON = async function () {
   let channels = await this.getChannels()
   channels = channels.map(channel => channel.toJSON())
-  await Promise.all(channels)
+  channels = await Promise.all(channels)
 
   return {
     id: this.id,
     name: this.name,
+    created: this.create_date,
     channels
   }
 }

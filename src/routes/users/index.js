@@ -11,6 +11,7 @@ const Channels = require('../../models/channels')
 
 const Auth = require('../../auth')
 const { requireBodyKeys } = require('../../utils')
+const participants = require('../../models/participants')
 
 class UserRoute {
   // Define the routes
@@ -29,8 +30,11 @@ class UserRoute {
   }
 
   async purgeUsers (req, res) {
-    const users = await Users.deleteMany({})
-    Users.dropTable()
+    // const users = await Users.deleteMany({})
+    // Users.dropTable()
+    await Rooms.deleteMany({})
+    await Channels.deleteMany({})
+    await participants.deleteMany({})
     return res.send('Deleted Users')
   }
 
