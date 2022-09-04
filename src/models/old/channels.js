@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 var crypto = require('crypto')
 var jwt = require('jsonwebtoken')
-var secret = require('../../config').jwt.secret
+var secret = require('../../../config').jwt.secret
 
 const Participants = require('./participants')
 const Messages = require('./messages')
