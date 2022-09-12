@@ -3,16 +3,16 @@ const mongoose = require('mongoose');
 const schemaName = 'Mention'
 const schema = mongoose.Schema({
   sender: {
-    type: mongoose.schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
   mentioned: {
-    type: mongoose.schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
 
   message: {
-    type: mongoose.schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Message'
   },
 

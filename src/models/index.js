@@ -1,17 +1,17 @@
-const Channel = require('./channels/channel')
-const ChannelEvent  = require('./channels/channelEvent')
-const Mention  = require('./channels/mention')
-const Message  = require('./channels/message')
+export {default as Channels } from './channels/channel'
+export {default as ChannelEvents } from './channels/channelEvent'
+export {default as Mentions } from './channels/mention'
+export {default as Messages } from './channels/message'
 
-const Key  = require('./keys/key')
-const KeyPair  = require('./keys/keypair')
+export {default as Keys } from './keys/key'
+export {default as KeyPairs } from './keys/keypair'
 
-const Membership  = require('./servers/membership')
-const Role  = require('./servers/role')
-const Server  = require('./servers/server')
+export {default as Memberships } from './servers/membership'
+export {default as Roles } from './servers/role'
+export {default as Servers } from './servers/server'
 
-const FriendRequest  = require('./users/friendRequest')
-const Relationship  = require('./users/relationship')
-const User  = require('./users/user')
+export {default as FriendRequests } from './users/friendRequest'
+export {default as Relationships } from './users/relationship'
+export {default as Users } from './users/user'
 
-export const Channel = Channel
+export {default as Utils} from './utils'

@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const schemaName = 'Message'
 const schema = mongoose.Schema({
   channel: {
-    type: mongoose.schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Channel'
   },
   sender: {
-    type: mongoose.schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
   content: {

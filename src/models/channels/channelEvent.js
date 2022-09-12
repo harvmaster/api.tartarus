@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const schemaName = 'ChannelEvent'
 const schema = mongoose.Schema({
   channel: {
-    type: mongoose.schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Channel'
   },
   type: String,       // messageUpdate, messageDelete, messageSent, voiceDeafen, voiceMute, voiceKick

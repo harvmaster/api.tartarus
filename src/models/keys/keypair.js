@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const schemaName = 'KeyPair'
 const schema = mongoose.Schema({
   user: {
-    type: mongoose.schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
 

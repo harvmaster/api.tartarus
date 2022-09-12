@@ -5,7 +5,7 @@ const schema = mongoose.Schema({
   users: {
     type: Array,
     of: {
-      type: mongoose.schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'user'
     }
   },
