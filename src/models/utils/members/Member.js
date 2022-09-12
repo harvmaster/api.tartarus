@@ -1,4 +1,5 @@
-const { Users, Roles } = require("../..");
+import Roles from "../roles";
+import Users from '../users';
 
 class Member {
 
@@ -8,7 +9,7 @@ class Member {
   roles;
   nickanme;
 
-  roleObjsl; // Memoize of the roles
+  roleObjs; // Memoize of the roles
 
   constructor ({ id, user, server, roles, nickname }) {
     this.id = id

@@ -53,7 +53,25 @@ class Channel {
     return roles
   }
 
-  
+  summary () {
+    return {
+      id: this.id,
+      shortId: this.shortId,
+      permittedRoles: this.permittedRoles,
+      name: this.name,
+      type: this.type,
+      created: this.created
+    }
+  }
+
+  async details () {
+    await this.populateMessages()
+    return {
+      ...this.summary(),
+      messages: this.messages
+    }
+  }
+
 }
 
 export default Channel

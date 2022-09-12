@@ -1,4 +1,4 @@
-export const generateUniuqueId = (ids) => {
+export const generateUniqueId = (ids) => {
   let id
   do {
     id = Math.random().toString(36).substr(2, 9)

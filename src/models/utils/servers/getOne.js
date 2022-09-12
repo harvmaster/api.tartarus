@@ -1,13 +1,19 @@
 import { Servers } from "../..";
 import Server from "./Server";
 
-export const getServer = async (params) => {
+/*
+  options: {
+    original: Give back the document straight from mongoose instead of the wrapped document
+  }
+*/
+export const getServer = async (params, options = {}) => {
   const server = await Servers.findOne(params)
   if (!server) return
 
-  const serverObj = new Server(server)
+  if (options.original) return server
 
-  return server
+  const serverObj = new Server(server)
+  return serverObj
 }
 
 export default getServer
