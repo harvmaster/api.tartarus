@@ -1,7 +1,7 @@
 import { Servers } from "../..";
 import { Server } from '..'
 
-import { generateUniqueId } from "../../../utils/generateUnqiueId";
+import { generateUniqueId } from "../../../utils/generateUniqueId";
 
 export const create = async ({ name, description, image }) => {
   const servers = await Servers.find({}).select('shortId')

@@ -1,5 +1,5 @@
 import Keypairs from "../keypairs";
-import Keys from './Keys'
+import Keys from '../keys'
 
 class Message {
 

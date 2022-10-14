@@ -14,4 +14,4 @@ export {default as FriendRequests } from './users/friendRequest'
 export {default as Relationships } from './users/relationship'
 export {default as Users } from './users/user'
 
-export {default as Utils} from './utils'
+export * as Utils from './utils'

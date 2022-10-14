@@ -1,4 +1,4 @@
-import { Channels, Memberships, Roles, Utils } from '../../models'
+import { Utils } from '../../models'
 import RoleManagement from '../../RoleManagement'
 
 export const createChannel = async (req, res) => {
@@ -7,7 +7,7 @@ export const createChannel = async (req, res) => {
 
   console.log('server', server)
   // Create channel
-  const channel = await Utils.createChannel(server, body)
+  const channel = await Utils.Channels.createChannel(server, body)
 
   try {
     await channel.save()

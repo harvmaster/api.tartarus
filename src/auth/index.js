@@ -21,7 +21,8 @@ const auth = () => {
 }
 
 const getTokenFromHeader = (req, res) => {
-  console.log(req.header.authorization)
+  // console.log('[Auth.index.js]', req.headers.authorization)
+
   if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Token' ||
       req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
         return req.headers.authorization.split(' ')[1];
